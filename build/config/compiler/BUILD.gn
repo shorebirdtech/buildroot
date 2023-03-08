@@ -76,9 +76,9 @@ config("compiler") {
     # Windows compiler flags setup.
     # -----------------------------
     cflags += [
-      "/GS",       # Enable buffer security checking.
-      "/FS",       # Preserve previous PDB behavior.
-      "/guard:cf", # Enable control flow guard security checks.
+      "/GS",  # Enable buffer security checking.
+      "/FS",  # Preserve previous PDB behavior.
+      "/guard:cf",  # Enable control flow guard security checks.
     ]
   } else {
     # Common GCC compiler flags setup.
@@ -283,6 +283,7 @@ config("compiler") {
       "NO_EXIT_RUNTIME=1",
       "-s",
       "STRICT=1",
+
       # Reduces global namespace pollution.
       "-s",
       "MODULARIZE=1",
@@ -386,7 +387,10 @@ config("compiler") {
 
     ldflags += [
       "-Wl,--no-undefined",
-      "-Wl,--exclude-libs,ALL",
+
+      # TODO: Terrible hack, but otherwise libupdater.a symbols can't
+      # be exported from libflutter.so, even when added to android_exports.lst.
+      # "-Wl,--exclude-libs,ALL",
       "-fuse-ld=lld",
 
       # Enable identical code folding to reduce size.
@@ -414,7 +418,7 @@ config("compiler") {
   # -----------------------------
   if (is_fuchsia) {
     if (fuchsia_target_api_level != -1) {
-      cflags +=[ "-ffuchsia-api-level=${fuchsia_target_api_level}" ]
+      cflags += [ "-ffuchsia-api-level=${fuchsia_target_api_level}" ]
     }
   }
 
@@ -538,9 +542,7 @@ config("runtime_library") {
 
     ldflags += [ "-nostdlib" ]
 
-    cflags += [
-      "-D__ANDROID_API__=$android_api_level",
-    ]
+    cflags += [ "-D__ANDROID_API__=$android_api_level" ]
 
     # libunwind and libandroid_support also live in $android_libcpp_root.
     lib_dirs += [ "$android_libcpp_root/libs/$android_app_abi" ]
@@ -633,6 +635,7 @@ if (is_win) {
     default_warning_flags += [
       # zlib needs this
       "-Wno-shift-negative-value",
+
       # freetype2 needs these two
       "-Wno-unused-function",
       "-Wno-unused-variable",
@@ -645,6 +648,7 @@ if (is_win) {
     "-Wno-implicit-int-float-conversion",
     "-Wno-c99-designator",
     "-Wno-deprecated-copy",
+
     # Needed for compiling Skia with clang-12
     "-Wno-psabi",
   ]
@@ -732,9 +736,7 @@ config("no_chromium_code") {
       "-Wno-newline-eof",
       "-Wno-typedef-redefinition",
     ]
-    cflags_cc += [
-      "-Wno-newline-eof",
-    ]
+    cflags_cc += [ "-Wno-newline-eof" ]
   }
 
   cflags += default_warning_flags
@@ -812,6 +814,7 @@ if (is_win) {
     # Don't emit the GCC version ident directives, they just end up in the
     # .comment section taking up binary size.
     "-fno-ident",
+
     # Put data and code in their own sections, so that unused symbols
     # can be removed at link time with --gc-sections.
     "-fdata-sections",
@@ -894,8 +897,11 @@ config("no_optimize") {
     }
     ldflags = common_optimize_on_ldflags
   } else if (is_wasm) {
-    cflags = [ "-O0", "-gsource-map" ]
-  } else  {
+    cflags = [
+      "-O0",
+      "-gsource-map",
+    ]
+  } else {
     cflags = [ "-O0" ]
   }
 }
