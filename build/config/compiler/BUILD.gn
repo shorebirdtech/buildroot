@@ -555,7 +555,7 @@ config("runtime_library") {
     ]
 
     libs += [
-      # The Shorebird updater requires unwind.
+      # Rust requires libunwind.
       "unwind",
       "c",
       "dl",
