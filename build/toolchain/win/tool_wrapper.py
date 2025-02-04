@@ -129,7 +129,7 @@ class WinTool(object):
       def_arg_prefix = "/DEF:"
       for arg in args:
         if arg.startswith(def_arg_prefix):
-          def_file = arg[len(def_arg_prefix) :]
+          def_file = arg[len(def_arg_prefix):]
           if not os.path.exists(def_file):
             args.remove(arg)
       args[0] = args[0].replace('/', '\\')
